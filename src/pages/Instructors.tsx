@@ -7,14 +7,18 @@ import {
   Button,
   Divider,
   Link,
-  TextField,
   Typography,
 } from "@mui/material";
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import api, {
   Category,
+  Teacher,
   TeacherDisciplines,
   Test,
   TestByTeacher,
@@ -27,6 +31,8 @@ function Instructors() {
     TestByTeacher[]
   >([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [teacher, setTeacher] = useState<string>('');
+  const [allTeachers, setAllTeachers] = useState<Teacher[]>([]);
 
   useEffect(() => {
     async function loadPage() {
@@ -36,16 +42,41 @@ function Instructors() {
       setTeachersDisciplines(testsData.tests);
       const { data: categoriesData } = await api.getCategories(token);
       setCategories(categoriesData.categories);
+      const { data: teachersData } = await api.getTeachers(token);
+      setAllTeachers(teachersData.teachers)
     }
     loadPage();
   }, [token]);
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setTeacher(event.target.value as string);
+  };
+
+  async function handleTeacherClick(teacherId: number) {
+    if (!token) return;
+
+    const { data: teacherTests } = await api.getTestsByTeacherId(token, teacherId);
+    setTeachersDisciplines(teacherTests.tests)
+  }
+
   return (
     <>
-      <TextField
-        sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
-        label="Pesquise por pessoa instrutora"
-      />
+      <Box sx={{ minWidth: 120, width: 500, m: "auto", mb: "15px" }}>
+      <FormControl fullWidth>
+        <InputLabel id="teacher-select-label">Pesquise por instrutor</InputLabel>
+        <Select
+          labelId="teacher-select-label"
+          id="demo-simple-select"
+          value={teacher}
+          label="Age"
+          onChange={handleChange}
+        >
+          {allTeachers?.map((teacher) => 
+            <MenuItem value={teacher.id} onClick={() => handleTeacherClick(teacher.id)} >{teacher.name}</MenuItem>
+          )}
+        </Select>
+      </FormControl>
+      </Box>
       <Divider sx={{ marginBottom: "35px" }} />
       <Box
         sx={{
