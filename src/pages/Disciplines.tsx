@@ -11,11 +11,11 @@ import {
   Link,
   MenuItem,
   Select,
-  TextField,
   Typography,
 } from "@mui/material";
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { SelectChangeEvent } from '@mui/material/Select';
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import api, {
@@ -26,6 +26,7 @@ import api, {
   Test,
   TestByDiscipline,
 } from "../services/api";
+import { updateView } from "../utils/updateView";
 
 function Disciplines() {
   const navigate = useNavigate();
@@ -219,6 +220,10 @@ function testOfCategory(test: Test, categoryId: number) {
   return test.category.id === categoryId;
 }
 
+async function handleViewClick(testId: number) {
+  await updateView(testId);
+}
+
 function TeachersDisciplines({
   categoryId,
   teachersDisciplines,
@@ -248,14 +253,20 @@ function Tests({
         testsWithDisciplines.tests
           .filter((test) => testOfCategory(test, categoryId))
           .map((test) => (
-            <Typography key={test.id} color="#878787">
-              <Link
-                href={test.pdfUrl}
-                target="_blank"
-                underline="none"
-                color="inherit"
-              >{`${test.name} (${testsWithDisciplines.teacherName})`}</Link>
-            </Typography>
+            <Box component="div" sx={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+              <Typography key={test.id} color="#878787" onClick={() => handleViewClick(test.id)}>
+                <Link
+                  href={test.pdfUrl}
+                  target="_blank"
+                  underline="none"
+                  color="inherit"
+                >{`${test.name} (${testsWithDisciplines.teacherName})`}</Link>
+              </Typography>
+              <Box component="div" color="#878787" sx={{ display: "flex", alignItems: "center", gap: 1}}>
+                <Typography > {test.views} </Typography> 
+                <VisibilityOutlinedIcon sx={{fontSize: "medium"}}/>
+              </Box>
+            </Box>
           ))
       )}
     </>

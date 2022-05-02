@@ -64,6 +64,7 @@ export interface Test {
   name: string;
   pdfUrl: string;
   category: Category;
+  views: number
 }
 
 export type TestByDiscipline = Term & {
@@ -117,6 +118,10 @@ async function getDisciplines(token: string) {
   return baseAPI.get<{ disciplines: DisciplinesData[] }>("/disciplines", config);
 }
 
+async function updateTestView(testId: number) {
+  return baseAPI.put(`/tests/${testId}/update-view`);
+}
+
 const api = {
   signUp,
   signIn,
@@ -126,7 +131,8 @@ const api = {
   getTeachers,
   getTestsByTeacherId,
   getDisciplines,
-  getTestsByDisciplineId
+  getTestsByDisciplineId,
+  updateTestView
 };
 
 export default api;

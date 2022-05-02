@@ -9,11 +9,12 @@ import {
   Link,
   Typography,
 } from "@mui/material";
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import api, {
@@ -23,6 +24,7 @@ import api, {
   Test,
   TestByTeacher,
 } from "../services/api";
+import { updateView } from "../utils/updateView";
 
 function Instructors() {
   const navigate = useNavigate();
@@ -184,6 +186,10 @@ function testOfThisCategory(
   );
 }
 
+async function handleViewClick(testId: number) {
+  await updateView(testId);
+}
+
 interface CategoriesProps {
   teachersDisciplines: TeacherDisciplines[];
   category: Category;
@@ -226,14 +232,20 @@ function Tests({ tests, disciplineName }: TestsProps) {
   return (
     <>
       {tests.map((test) => (
-        <Typography key={test.id} color="#878787">
+        <Box component="div" sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography key={test.id} color="#878787" onClick={() => handleViewClick(test.id)}>
           <Link
             href={test.pdfUrl}
             target="_blank"
             underline="none"
             color="inherit"
           >{`${test.name} (${disciplineName})`}</Link>
-        </Typography>
+          </Typography>
+          <Box component="div" color="#878787" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography > {test.views} </Typography>
+            <VisibilityOutlinedIcon sx={{ fontSize: "medium" }} />
+          </Box>
+        </Box>
       ))}
     </>
   );
