@@ -37,6 +37,11 @@ export interface Discipline {
   term: Term;
 }
 
+export interface DisciplinesData {
+  id: number,
+  name: string
+}
+
 export interface TeacherDisciplines {
   id: number;
   discipline: Discipline;
@@ -79,6 +84,11 @@ async function getTestsByDiscipline(token: string) {
   );
 }
 
+async function getTestsByDisciplineId(token: string, disciplineId: number) {
+  const config = getConfig(token);
+  return baseAPI.get<{ tests: TestByDiscipline[] }>(`/tests/disciplines/${disciplineId}`, config);
+}
+
 async function getTestsByTeacher(token: string) {
   const config = getConfig(token);
   return baseAPI.get<{ tests: TestByTeacher[] }>(
@@ -102,6 +112,11 @@ async function getTestsByTeacherId(token: string, teacherId: number) {
   return baseAPI.get<{ tests: TestByTeacher[] }>(`/tests/teachers/${teacherId}`, config);
 }
 
+async function getDisciplines(token: string) {
+  const config = getConfig(token);
+  return baseAPI.get<{ disciplines: DisciplinesData[] }>("/disciplines", config);
+}
+
 const api = {
   signUp,
   signIn,
@@ -109,7 +124,9 @@ const api = {
   getTestsByTeacher,
   getCategories,
   getTeachers,
-  getTestsByTeacherId
+  getTestsByTeacherId,
+  getDisciplines,
+  getTestsByDisciplineId
 };
 
 export default api;

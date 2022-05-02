@@ -6,16 +6,22 @@ import {
   Box,
   Button,
   Divider,
+  FormControl,
+  InputLabel,
   Link,
+  MenuItem,
+  Select,
   TextField,
   Typography,
 } from "@mui/material";
+import { SelectChangeEvent } from '@mui/material/Select';
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import api, {
   Category,
   Discipline,
+  DisciplinesData,
   TeacherDisciplines,
   Test,
   TestByDiscipline,
@@ -26,6 +32,8 @@ function Disciplines() {
   const { token } = useAuth();
   const [terms, setTerms] = useState<TestByDiscipline[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [discipline, setDiscipline] = useState<string>('');
+  const [allDisciplines, setAllDisciplines] = useState<DisciplinesData[]>([]);
 
   useEffect(() => {
     async function loadPage() {
@@ -35,16 +43,40 @@ function Disciplines() {
       setTerms(testsData.tests);
       const { data: categoriesData } = await api.getCategories(token);
       setCategories(categoriesData.categories);
+      const { data: disciplinesData } = await api.getDisciplines(token);
+      setAllDisciplines(disciplinesData.disciplines)
     }
     loadPage();
   }, [token]);
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setDiscipline(event.target.value as string);
+  };
+
+  async function handleDisciplineClick(disciplineId: number) {
+    if (!token) return;
+    const { data: disciplineTests } = await api.getTestsByDisciplineId(token, disciplineId);
+    setTerms(disciplineTests.tests) 
+  }
+
   return (
     <>
-      <TextField
-        sx={{ marginX: "auto", marginBottom: "25px", width: "450px" }}
-        label="Pesquise por disciplina"
-      />
+      <Box sx={{ minWidth: 120, width: 500, m: "auto", mb: "15px" }}>
+        <FormControl fullWidth>
+          <InputLabel id="discipline-select-label">Pesquise por disciplina</InputLabel>
+          <Select
+            labelId="discipline-select-label"
+            id="discipline-simple-select"
+            value={discipline}
+            label="Age"
+            onChange={handleChange}
+          >
+            {allDisciplines?.map((discipline) =>
+              <MenuItem value={discipline.id} onClick={() => handleDisciplineClick(discipline.id)} >{discipline.name}</MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
       <Divider sx={{ marginBottom: "35px" }} />
       <Box
         sx={{
