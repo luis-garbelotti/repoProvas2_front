@@ -67,6 +67,13 @@ export interface Test {
   views: number
 }
 
+export interface TestData {
+  name: string,
+  pdfUrl: string,
+  categoryId: number,
+  teacherDisciplineId: number
+}
+
 export type TestByDiscipline = Term & {
   disciplines: Discipline[];
 };
@@ -118,8 +125,19 @@ async function getDisciplines(token: string) {
   return baseAPI.get<{ disciplines: DisciplinesData[] }>("/disciplines", config);
 }
 
+async function getTeachersByDisciplineId(token: string, disciplineId: number) {
+  const config = getConfig(token);
+  return baseAPI.get<{ teachers: Teacher[] }>(`/teachers/disciplines/${disciplineId}`, config);
+}
+
 async function updateTestView(testId: number) {
   return baseAPI.put(`/tests/${testId}/update-view`);
+}
+
+async function insertTest(token: string, body: TestData) {
+  const config = getConfig(token);
+  return baseAPI.post<{ body: TestData }>(`/test`, body, config);
+
 }
 
 const api = {
@@ -132,7 +150,9 @@ const api = {
   getTestsByTeacherId,
   getDisciplines,
   getTestsByDisciplineId,
-  updateTestView
+  updateTestView,
+  getTeachersByDisciplineId,
+  insertTest
 };
 
 export default api;
